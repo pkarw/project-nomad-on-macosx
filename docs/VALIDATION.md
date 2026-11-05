@@ -10,3 +10,11 @@ Validated on an Apple Silicon Mac with microsandbox 0.7.13 and NOMAD 1.35.1, pin
 - Confirmed the dashboard health endpoint returns HTTP 200 and managed apps resume.
 
 The clean-install instructions derive from the original prototype build recipe. A fresh installation from this public repository has not been run end to end. Intel Macs, Linux and Windows are outside this repository’s tested path. The GUI packaging adjustment is compilation-checked separately. No populated data image, host state or private logs are distributed.
+
+## One-command installer checks
+
+- Piped-shell installation flow tested with mocked external commands, including default startup and `--no-start`.
+- Existing workspace preservation, failed-guest recovery and read-only preflight covered by automated tests (`python3 -m unittest discover -s tests -v`).
+- Actual microsandbox 0.7.13 creation of an isolated Ubuntu builder, formatting and filesystem checks of two 1 GiB test volumes, graceful shutdown and removal passed. Production capacities are 256 GiB and 8 GiB.
+- Native Finder bookmark shortcuts were created successfully in a temporary directory.
+- The full fresh installation, including the first native Docker build, has not been rerun end to end through the published one-liner.

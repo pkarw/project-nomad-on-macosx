@@ -12,3 +12,4 @@ release-checksums.json
 *.img
 *.qcow2
 *.msb
+__pycache__/
