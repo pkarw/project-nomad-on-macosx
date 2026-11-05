@@ -1,0 +1,43 @@
+{
+  "schema": "nomad-portable-release/v1",
+  "version": "0.1.0-prototype",
+  "status": "community-proposal",
+  "nomad": {
+    "repository": "https://github.com/Crosstalk-Solutions/project-nomad",
+    "revision": "54ee30a44902e5c252b477f8685c26ec3064ab72",
+    "version": "1.35.1"
+  },
+  "microsandbox": {
+    "testedVersion": "0.7.13"
+  },
+  "guest": {
+    "image": "ubuntu:24.04",
+    "arm64ManifestDigest": "sha256:19cad59657037cffa0ac9a48107019b768900ff1071140965827513ac866bd5e"
+  },
+  "mysql": {
+    "version": "8.0.46",
+    "image": "mysql:8.0@sha256:7dcddc01f13bab2f15cde676d44d01f61fc9f99fe7785e86196dfc07d358ae2b"
+  },
+  "storage": {
+    "hostFilesystem": "exFAT",
+    "runtimeFormat": "raw",
+    "guestFilesystem": "ext4",
+    "initialContentGiB": 256,
+    "dockerGiBPerArchitecture": 64,
+    "dockerSeedGiB": 8,
+    "growth": "explicit-grow-only"
+  },
+  "targets": {
+    "darwin-arm64": "live-macOS-and-isolated-persistence-validation",
+    "linux-amd64": "compiled-not-hardware-tested",
+    "linux-arm64": "compiled-not-hardware-tested",
+    "windows-amd64": "compiled-not-hardware-tested; microsandbox-preview",
+    "windows-arm64": "compiled-not-hardware-tested; microsandbox-preview"
+  },
+  "ai": "native-host-Ollama-via-existing-NOMAD-remote-endpoint",
+  "automaticCoreUpdates": false,
+  "compatibility": {
+    "amd64OnArm": "Ubuntu QEMU user-mode, optional per app",
+    "validatedExample": "excalidraw/excalidraw:sha-4bfc5bb"
+  }
+}

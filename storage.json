@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "format": "raw",
+  "data": "disks/nomad-data.img",
+  "dockerPattern": "disks/docker-{arch}.img",
+  "seed": "disks/docker-empty.img",
+  "dockerGiB": 64
+}

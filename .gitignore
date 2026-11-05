@@ -1,0 +1,14 @@
+disks/
+runtime/
+Launchers/
+*.app/
+macos/NOMAD-Launcher
+release-checksums.json
+.nomad-builder/
+*.log
+.env*
+.DS_Store
+._*
+*.img
+*.qcow2
+*.msb
