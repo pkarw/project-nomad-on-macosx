@@ -14,6 +14,8 @@ Run [Project NOMAD](https://github.com/Crosstalk-Solutions/project-nomad) in an 
 
 > This repository contains the installer and runtime adapter. Your chosen knowledge library and AI models are downloaded separately before offline use.
 
+![Project NOMAD Command Center on macOS with native Start and Stop shortcuts](assets/nomad-1.jpg)
+
 ## 🚀 Install with one command
 
 ```bash
@@ -52,7 +54,7 @@ curl -fsSL https://raw.githubusercontent.com/pkarw/project-nomad-on-macosx/main/
 
 This creates separate disk images and Desktop shortcuts named **NOMAD (Project-Nomad-2)** and **Stop NOMAD (Project-Nomad-2)**. Existing installations and shortcuts are preserved. Omit `--no-start` to start automatically after installation.
 
-**One installation can run at a time:** they share the launcher’s host runtime and dashboard port. Stop the current installation before starting the test copy. These options select a separate data directory; they do not create simultaneous runtime instances.
+**One installation can run at a time:** each fresh installation has its own sandbox identity, but they share the dashboard port. Stop the current installation before starting the test copy. Existing installations keep their original runtime identity. These options do not enable simultaneous use of the same dashboard port.
 
 `--dir=PATH` and the existing `NOMAD_INSTALL_DIR` environment variable are also supported; `--dir` takes precedence. Paths must be absolute; use `"$HOME/..."` to select a folder in your home directory.
 

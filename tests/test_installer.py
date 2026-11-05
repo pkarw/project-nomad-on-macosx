@@ -103,6 +103,7 @@ class InstallerTests(unittest.TestCase):
         self.assertFalse(list(self.home.glob('*.app')))
         manifest = json.loads((destination / 'release-checksums.json').read_text())
         self.assertIn('disks/docker-empty.img', manifest)
+        self.assertRegex((destination / 'runtime-id').read_text().strip(), r'^nomad-[0-9a-f]{16}$')
         for name, args, context in self.calls():
             if name == 'msb' and args[0] in ['create', 'exec', 'stop', 'remove', 'volume']:
                 self.assertTrue(context.startswith('/tmp/nm.'))

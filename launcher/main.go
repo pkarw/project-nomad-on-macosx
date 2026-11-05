@@ -20,7 +20,8 @@ import (
 	"time"
 )
 
-const name = "nomad-x5"
+var name = "nomad-x5"
+
 const dashboard = "http://localhost:8080"
 
 var root, msb string
@@ -503,6 +504,26 @@ func stopCore() error {
 	fmt.Println("NOMAD is stopped. You can now eject the Samsung X5.")
 	return nil
 }
+func runtimeName(workspace string) (string, error) {
+	data, err := os.ReadFile(filepath.Join(workspace, "runtime-id"))
+	if os.IsNotExist(err) {
+		return "nomad-x5", nil
+	}
+	if err != nil {
+		return "", err
+	}
+	value := strings.TrimSpace(string(data))
+	if !strings.HasPrefix(value, "nomad-") || len(value) <= len("nomad-") || len(value) > 64 {
+		return "", errors.New("invalid workspace runtime-id")
+	}
+	for _, character := range value {
+		if character != '-' && (character < 'a' || character > 'z') && (character < '0' || character > '9') {
+			return "", errors.New("invalid workspace runtime-id")
+		}
+	}
+	return value, nil
+}
+
 func mainError() error {
 	exe, e := os.Executable()
 	if e != nil {
@@ -518,6 +539,10 @@ func mainError() error {
 	}
 	if !exists(filepath.Join(root, "bootstrap-ubuntu.sh")) {
 		return errors.New("keep the launcher inside the Project-NOMAD folder on the external drive")
+	}
+	name, e = runtimeName(root)
+	if e != nil {
+		return e
 	}
 	b, e := os.ReadFile(filepath.Join(root, "storage.json"))
 	if e != nil {

@@ -18,3 +18,7 @@ The clean-install instructions derive from the original prototype build recipe. 
 - Actual microsandbox 0.7.13 creation of an isolated Ubuntu builder, formatting and filesystem checks of two 1 GiB test volumes, graceful shutdown and removal passed. Production capacities are 256 GiB and 8 GiB.
 - Native Finder bookmark shortcuts were created successfully in a temporary directory.
 - The full fresh installation, including the first native Docker build, has not been rerun end to end through the published one-liner.
+
+## Separate-installation startup regression
+
+Fresh installs now receive a persistent `runtime-id`, used by the launcher for sandbox lookup, start and stop. Existing workspaces without this file retain the legacy `nomad-x5` identity. This prevents a fresh second install from trying to discard or rebind the first installation’s VM when no recovery archive exists yet. The dashboard port is still shared, so only one installation should run at a time.

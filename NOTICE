@@ -2,4 +2,4 @@ Community macOS runtime adapter. Not an official Project NOMAD distribution.
 Project NOMAD: https://github.com/Crosstalk-Solutions/project-nomad (Apache-2.0).
 Microsandbox: https://github.com/superradcompany/microsandbox (Apache-2.0).
 Third-party projects retain their respective licenses.
-The bundled darwin-arm64 launcher is the original locally tested prototype; source is in launcher/.
+The bundled darwin-arm64 launcher is built from the source in launcher/.

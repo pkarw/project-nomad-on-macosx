@@ -118,9 +118,10 @@ done
     copy_disk "$builder/volumes/seed-docker/disk.raw" "$workspace/disks/docker-empty.img"
     step 'Generating the artifact manifest'
     python3 - "$workspace" <<'PY'
-import hashlib, json, sys
+import hashlib, json, sys, uuid
 from pathlib import Path
 root = Path(sys.argv[1])
+(root / "runtime-id").write_text("nomad-" + uuid.uuid4().hex[:16] + "\n")
 checksums = {}
 for name in ['storage.json', 'bootstrap-ubuntu.sh', 'guest-start.sh', 'release.json', 'disks/docker-empty.img']:
     digest = hashlib.sha256()
