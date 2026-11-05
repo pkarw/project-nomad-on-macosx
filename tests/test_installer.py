@@ -40,7 +40,7 @@ elif name == 'swift':
     desktop = pathlib.Path(args[2])
     desktop.mkdir(exist_ok=True)
     for app in ['NOMAD', 'Stop NOMAD']:
-        (desktop / app).write_text(args[1])
+        (desktop / (app + args[3])).write_text(args[1])
 '''
 
 
@@ -115,6 +115,39 @@ class InstallerTests(unittest.TestCase):
         self.assertEqual(starts[0][1][0], 'start')
         self.assertIn('/Launchers/Project-NOMAD/bin/darwin-arm64/nomad', starts[0][1][1])
         self.assertIsNone(starts[0][2])
+
+    def test_custom_directory_coexists_with_existing_workspace_and_shortcuts(self):
+        original = self.home / 'Project-NOMAD'
+        original.mkdir()
+        (original / 'my-data').write_text('keep me')
+        desktop = self.home / 'Desktop'
+        desktop.mkdir()
+        for name in ['NOMAD', 'Stop NOMAD']:
+            (desktop / name).write_text('original shortcut')
+        self.environment['NOMAD_INSTALL_DIR'] = str(original)
+        destination = self.home / 'Project-Nomad-2'
+        result = self.run_installer('--no-start', '--dir', str(destination))
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertTrue((destination / 'disks/nomad-data.img').is_file())
+        self.assertEqual((original / 'my-data').read_text(), 'keep me')
+        for name in ['NOMAD', 'Stop NOMAD']:
+            self.assertEqual((desktop / name).read_text(), 'original shortcut')
+            self.assertEqual((desktop / (name + ' (Project-Nomad-2)')).read_text(), str(destination))
+        self.assertFalse([call for call in self.calls() if call[0] == 'nomad'])
+
+    def test_directory_equals_syntax_and_paths_with_spaces(self):
+        destination = self.home / 'My NOMAD'
+        result = self.run_installer('--dir=' + str(destination), '--no-start')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertTrue((destination / 'disks/nomad-data.img').is_file())
+
+    def test_invalid_directory_arguments_do_not_change_anything(self):
+        for arguments in [('--dir',), ('--dir', '--no-start'), ('--dir=',), ('--dir', 'relative')]:
+            with self.subTest(arguments=arguments):
+                result = self.run_installer(*arguments)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertFalse(self.log.exists())
+                self.assertFalse(list(self.home.glob('.nomad-install.*')))
 
     def test_existing_workspace_is_preserved(self):
         destination = self.home / 'Project-NOMAD'

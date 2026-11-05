@@ -36,11 +36,17 @@ Check prerequisites without making changes:
 curl -fsSL https://raw.githubusercontent.com/pkarw/project-nomad-on-macosx/main/install.sh | sh -s -- --check
 ```
 
-For a custom location, set `NOMAD_INSTALL_DIR` on the **shell** side of the pipe:
+To test a second installation in `~/Project-Nomad-2`:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/pkarw/project-nomad-on-macosx/main/install.sh | NOMAD_INSTALL_DIR="$HOME/My-NOMAD" sh
+curl -fsSL https://raw.githubusercontent.com/pkarw/project-nomad-on-macosx/main/install.sh | sh -s -- --dir "$HOME/Project-Nomad-2" --no-start
 ```
+
+This creates separate disk images and Desktop shortcuts named **NOMAD (Project-Nomad-2)** and **Stop NOMAD (Project-Nomad-2)**. Existing installations and shortcuts are preserved. Omit `--no-start` to start automatically after installation.
+
+**One installation can run at a time:** they share the launcher’s host runtime and dashboard port. Stop the current installation before starting the test copy. These options select a separate data directory; they do not create simultaneous runtime instances.
+
+`--dir=PATH` and the existing `NOMAD_INSTALL_DIR` environment variable are also supported; `--dir` takes precedence. Paths must be absolute; use `"$HOME/..."` to select a folder in your home directory.
 
 After setup, double-click **NOMAD** on your Desktop. Use **Stop NOMAD** when finished. The dashboard opens at **http://localhost:8080**. Optional AI requires installing [Ollama](https://ollama.com) and downloading a model on your Mac.
 

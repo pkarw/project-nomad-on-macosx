@@ -6,31 +6,50 @@ fail() { printf '\n❌ %s\n' "$*" >&2; exit 1; }
 step() { printf '\n🧭 %s\n' "$*"; }
 
 main() {
-    case "${1:-}" in
-        --help|-h)
-            printf '%s\n' 'Usage: sh install.sh [--check | --no-start]' \
-                'Installs into ~/Project-NOMAD; override with NOMAD_INSTALL_DIR.' \
-                '--check checks prerequisites without changing anything.' \
-                '--no-start installs without launching NOMAD.'
-            return ;;
-        ''|--check|--no-start) ;;
-        *) fail "Unknown option: $1" ;;
-    esac
+    destination=${NOMAD_INSTALL_DIR:-"$HOME/Project-NOMAD"}
+    check_only=0
+    start_after_install=1
+    while [ "$#" -gt 0 ]; do
+        case "$1" in
+            --help|-h)
+                printf '%s\n' 'Usage: sh install.sh [--dir PATH] [--check] [--no-start]' \
+                    'Installs into ~/Project-NOMAD by default.' \
+                    '--dir PATH selects the installation directory (absolute path).' \
+                    'NOMAD_INSTALL_DIR is also supported; --dir takes precedence.' \
+                    '--check checks prerequisites without changing anything.' \
+                    '--no-start installs without launching NOMAD.'
+                return ;;
+            --dir)
+                [ "$#" -ge 2 ] || fail '--dir requires an absolute directory path.'
+                case "$2" in ''|--*) fail '--dir requires an absolute directory path.' ;; esac
+                destination=$2
+                shift ;;
+            --dir=*) destination=${1#--dir=} ;;
+            --check) check_only=1 ;;
+            --no-start) start_after_install=0 ;;
+            *) fail "Unknown option: $1" ;;
+        esac
+        shift
+    done
     [ "$(uname -s)" = Darwin ] || fail 'This installer requires macOS.'
     [ "$(uname -m)" = arm64 ] || fail 'This installer requires an Apple Silicon Mac.'
     [ "$(id -u)" != 0 ] || fail 'Run as your normal user, without sudo.'
-    destination=${NOMAD_INSTALL_DIR:-"$HOME/Project-NOMAD"}
-    case "$destination" in /*) ;; *) fail 'NOMAD_INSTALL_DIR must be an absolute path.' ;; esac
+    case "$destination" in /*) ;; *) fail 'Installation directory must be an absolute path.' ;; esac
     [ ! -e "$destination" ] && [ ! -L "$destination" ] || fail "Destination already exists; nothing was changed: $destination"
     parent=$(dirname "$destination")
     [ -d "$parent" ] && [ -w "$parent" ] || fail "Destination parent must exist and be writable: $parent"
-    for alias_name in NOMAD 'Stop NOMAD'; do
+    shortcut_suffix=""
+    if [ "$destination" != "$HOME/Project-NOMAD" ]; then
+        shortcut_suffix=" ($(basename "$destination"))"
+    fi
+    for base_name in NOMAD 'Stop NOMAD'; do
+        alias_name="$base_name$shortcut_suffix"
         [ ! -e "$HOME/Desktop/$alias_name" ] && [ ! -L "$HOME/Desktop/$alias_name" ] || fail "Desktop shortcut already exists: $alias_name"
     done
     available=$(df -Pk "$parent" | awk 'END {print $4}')
     [ "$available" -ge 419430400 ] || fail 'At least 400 GiB of free space is required.'
     export PATH="$PATH:/opt/homebrew/bin:/usr/local/bin:$HOME/.local/bin:$HOME/.microsandbox/bin"
-    if [ "${1:-}" = --check ]; then
+    if [ "$check_only" = 1 ]; then
         xcrun --find swiftc >/dev/null 2>&1 || fail 'Install Apple Command Line Tools: xcode-select --install'
         command -v python3 >/dev/null 2>&1 || fail 'Python 3 is required.'
         command -v msb >/dev/null 2>&1 || fail 'microsandbox is required: brew install superradcompany/tap/microsandbox'
@@ -120,14 +139,15 @@ PY
     [ ! -e "$destination" ] && [ ! -L "$destination" ] || fail "Destination appeared during installation: $destination"
     mv "$workspace" "$destination"
     step 'Adding Desktop shortcuts'
-    swift - "$destination" "$HOME/Desktop" <<'SWIFT'
+    swift - "$destination" "$HOME/Desktop" "$shortcut_suffix" <<'SWIFT'
 import Foundation
 let root = URL(fileURLWithPath: CommandLine.arguments[1])
 let desktop = URL(fileURLWithPath: CommandLine.arguments[2])
+let suffix = CommandLine.arguments[3]
 try FileManager.default.createDirectory(at: desktop, withIntermediateDirectories: true)
 for name in ["NOMAD", "Stop NOMAD"] {
     let target = root.appendingPathComponent("Launchers/\(name).app")
-    let alias = desktop.appendingPathComponent(name)
+    let alias = desktop.appendingPathComponent(name + suffix)
     guard !FileManager.default.fileExists(atPath: alias.path) else {
         fatalError("Desktop shortcut already exists: \(alias.path)")
     }
@@ -138,11 +158,11 @@ SWIFT
     complete=1
     rm -rf "$staging"
     step "Installed in $destination"
-    if [ "${1:-}" != --no-start ]; then
+    if [ "$start_after_install" = 1 ]; then
         step 'Starting NOMAD — initial downloads and native image builds can take a while'
         "$destination/Launchers/Project-NOMAD/bin/darwin-arm64/nomad" start </dev/null
     fi
-    printf '\n✅ Ready. Use the NOMAD and Stop NOMAD shortcuts on your Desktop.\n'
+    printf '\n✅ Ready. Desktop shortcuts: NOMAD%s and Stop NOMAD%s.\n' "$shortcut_suffix" "$shortcut_suffix"
 }
 
 copy_disk() {
