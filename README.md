@@ -36,7 +36,15 @@ Check prerequisites without making changes:
 curl -fsSL https://raw.githubusercontent.com/pkarw/project-nomad-on-macosx/main/install.sh | sh -s -- --check
 ```
 
-To test a second installation in `~/Project-Nomad-2`:
+### 📂 Install into a different directory
+
+Pass `--dir` followed by an absolute path. For example, install into `~/Project-Nomad-2` and start automatically:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/pkarw/project-nomad-on-macosx/main/install.sh | sh -s -- --dir "$HOME/Project-Nomad-2"
+```
+
+If you already have an installation and want to prepare a test copy without starting it, add `--no-start`:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/pkarw/project-nomad-on-macosx/main/install.sh | sh -s -- --dir "$HOME/Project-Nomad-2" --no-start
@@ -48,7 +56,7 @@ This creates separate disk images and Desktop shortcuts named **NOMAD (Project-N
 
 `--dir=PATH` and the existing `NOMAD_INSTALL_DIR` environment variable are also supported; `--dir` takes precedence. Paths must be absolute; use `"$HOME/..."` to select a folder in your home directory.
 
-After setup, double-click **NOMAD** on your Desktop. Use **Stop NOMAD** when finished. The dashboard opens at **http://localhost:8080**. Optional AI requires installing [Ollama](https://ollama.com) and downloading a model on your Mac.
+After setup, double-click the Desktop **NOMAD** shortcut for your installation (for example, **NOMAD (Project-Nomad-2)**). Use its matching **Stop NOMAD** shortcut when finished. The dashboard opens at **http://localhost:8080**. Optional AI requires installing [Ollama](https://ollama.com) and downloading a model on your Mac.
 
 ## 🧠 How it works
 
